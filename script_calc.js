@@ -1,14 +1,15 @@
 (async () => {
   if (!("gpu" in navigator)) {
-    console.log("WebGPU is not supported. Enable chrome://flags/#enable-unsafe-webgpu flag.");
+    console.error("WebGPU is not supported. Enable chrome://flags/#enable-unsafe-webgpu flag.");
     return;
   }
 
   const adapter = await navigator.gpu.requestAdapter();
   if (!adapter) {
-    console.log("Failed to get GPU adapter.");
+    console.error("Failed to get GPU adapter.");
     return;
   }
+  console.log(adapter.limits)
   const device = await adapter.requestDevice();
 
   // First Matrix
@@ -62,7 +63,7 @@
   // Compute shader code
 
   const shaderModule = device.createShaderModule({
-    code: `
+    code: /* wgsl */ `
       struct Matrix {
         size : vec2<f32>,
         numbers: array<f32>,
