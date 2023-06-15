@@ -34,11 +34,11 @@
   // Second Matrix
 
   const secondMatrix = new Float32Array([
-    4 /* rows */, 2 /* columns */,
-    1, 2,
-    3, 4,
-    5, 6,
-    7, 8
+    4 /* rows */, 3 /* columns */,
+    1, 2, 3,
+    3, 4, 5,
+    5, 6, 7,
+    7, 8, 9
   ]);
 
   const gpuBufferSecondMatrix = device.createBuffer({
@@ -62,7 +62,7 @@
 
   // Compute shader code
 
-  const shaderModule = device.createShaderModule({
+  const shaderModule1 = device.createShaderModule({
     code: /* wgsl */ `
       struct Matrix {
         size : vec2<f32>,
@@ -96,6 +96,32 @@
     `
   });
   
+  const shaderModule = device.createShaderModule({
+    code: /* wgsl */ `
+      struct Matrix {
+        size : vec2<f32>,
+        numbers: array<f32>,
+      }
+
+      @group(0) @binding(0) var<storage, read> firstMatrix : Matrix;
+      @group(0) @binding(1) var<storage, read> secondMatrix : Matrix;
+      @group(0) @binding(2) var<storage, read_write> resultMatrix : Matrix;
+
+      @compute @workgroup_size(8, 8)
+      fn main(@builtin(global_invocation_id) global_id : vec3<u32>) {
+        // Guard against out-of-bounds work group sizes
+        if (global_id.x >= u32(firstMatrix.size.x) || global_id.y >= u32(secondMatrix.size.y)) {
+          return;
+        }
+
+        resultMatrix.size = vec2(firstMatrix.size.x, secondMatrix.size.y);
+
+        let resultCell = vec2(global_id.x, global_id.y);
+        let index = resultCell.y + resultCell.x * u32(secondMatrix.size.y);
+        resultMatrix.numbers[index] = f32(index);
+      }
+    `
+  });
   // Pipeline setup
   
   const computePipeline = device.createComputePipeline({
