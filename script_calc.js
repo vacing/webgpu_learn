@@ -61,7 +61,6 @@
 
 
   // Compute shader code
-
   const shaderModule1 = device.createShaderModule({
     code: /* wgsl */ `
       struct Matrix {
@@ -95,7 +94,7 @@
       }
     `
   });
-  
+
   const shaderModule = device.createShaderModule({
     code: /* wgsl */ `
       struct Matrix {
@@ -122,8 +121,8 @@
       }
     `
   });
+
   // Pipeline setup
-  
   const computePipeline = device.createComputePipeline({
     layout: "auto",
     compute: {
@@ -134,7 +133,6 @@
 
 
   // Bind group
-
   const bindGroup = device.createBindGroup({
     layout: computePipeline.getBindGroupLayout(0 /* index */),
     entries: [
@@ -158,10 +156,8 @@
       }
     ]
   });
-  
 
   // Commands submission
-
   const commandEncoder = device.createCommandEncoder();
 
   const passEncoder = commandEncoder.beginComputePass();
